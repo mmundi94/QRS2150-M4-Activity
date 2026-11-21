@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practice Activity: The Chart Print Shop</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,700;9..144,900&family=Work+Sans:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#2a1e17;
+  --ink2:#5f5149;
+  --paper:#fff8ee;
+  --teal:#134f5c;
+  --teal-l:#d9eceb;
+  --terra:#c8553d;
+  --terra-l:#fbe3da;
+  --sage:#6a9f58;
+  --sage-d:#4b7d3b;
+  --sage-l:#e6f2dd;
+  --mustard:#f2b705;
+  --mustard-l:#fff2c4;
+  --peach:#ff9f7a;
+  --sun:#ffff02;
+  --sc:var(--terra);
+  --sl:var(--terra-l);
+}
+*{box-sizing:border-box}
+html{background:var(--paper)}
+html,body{margin:0}
+body{font-family:"Work Sans",system-ui,sans-serif;font-size:17px;line-height:1.5;color:var(--ink);min-height:100vh;
+  background:
+    radial-gradient(42vw 38vw at 0% 0%, rgba(255,159,122,.75), transparent 62%),
+    radial-gradient(40vw 36vw at 100% 8%, rgba(242,183,5,.55), transparent 62%),
+    radial-gradient(48vw 42vw at 100% 100%, rgba(19,79,92,.42), transparent 62%),
+    radial-gradient(44vw 40vw at 0% 100%, rgba(106,159,88,.50), transparent 62%),
+    var(--paper);
+  background-attachment:fixed}
+/* risograph grain + halftone */
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.45;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='r'><feTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .17 0 0 0 0 .12 0 0 0 0 .09 0 0 0 .55 0'/></filter><rect width='100%' height='100%' filter='url(%23r)'/></svg>")}
+body::after{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.12;
+  background-image:radial-gradient(var(--ink) 1px, transparent 1.3px);background-size:9px 9px}
+.page{position:relative;z-index:1;max-width:1080px;margin:0 auto;padding:18px 16px 46px}
+button{font:inherit;color:inherit}
+:focus-visible{outline:3px dashed var(--teal);outline-offset:3px}
+h1,h2,h3{font-family:"Fraunces",Georgia,serif;margin:0;line-height:1.05}
+.mono{font-family:"Space Mono",monospace}
+
+/* Masthead */
+.mast{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;border-bottom:3px solid var(--ink);padding-bottom:10px;margin-bottom:16px}
+.uni{font-family:"Fraunces",serif;font-weight:900;font-size:20px;letter-spacing:.01em}
+.uni span{display:block;font-family:"Space Mono",monospace;font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink2)}
+.sheetno{font-family:"Space Mono",monospace;font-size:13px;font-weight:700;text-align:right}
+.contact{display:grid;grid-template-columns:repeat(22,10px);gap:3px;margin-top:6px;justify-content:end}
+@media (max-width:520px){.contact{grid-template-columns:repeat(11,10px)}}
+.contact i{width:10px;height:10px;border:1.5px solid var(--ink);background:#fff;transition:background .3s}
+.contact i.ok{background:var(--sage)}
+.contact i.no{background:var(--terra)}
+.contact i.cur{background:var(--sun);animation:blinkc 1s steps(2) infinite}
+@keyframes blinkc{50%{background:#fff}}
+
+/* Studio tabs */
+.tabs{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.tab{display:flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;background:#fff;border:2.5px solid var(--ink);border-radius:4px;font-weight:700;font-size:14.5px;position:relative;
+  box-shadow:4px 4px 0 var(--c)}
+.tab svg{width:34px;height:34px}
+.tab small{display:block;font-family:"Space Mono",monospace;font-size:11px;font-weight:700;color:var(--ink2)}
+.tab.now{background:var(--c);color:#fff;box-shadow:4px 4px 0 var(--ink)}
+.tab.now small{color:#fff}
+.tab.done::after{content:"✓";position:absolute;top:-10px;right:-10px;width:22px;height:22px;border-radius:50%;background:var(--sage);color:#fff;font-size:12px;display:grid;place-items:center;border:2px solid var(--ink)}
+@media (max-width:640px){.tab{flex:1;justify-content:center;padding:6px}.tab .tt{display:none}}
+
+/* Sheet (card) */
+.sheet{background:#fffdf8;border:3px solid var(--ink);position:relative;box-shadow:8px 8px 0 var(--sc)}
+.sheet::before{content:"";position:absolute;inset:-3px;border:3px solid var(--sc);transform:translate(3px,-3px);pointer-events:none;mix-blend-mode:multiply;opacity:.55}
+.in{padding:26px}
+@media (max-width:560px){.in{padding:18px}.sheet{box-shadow:5px 5px 0 var(--sc)}}
+.fade{animation:fade .45s ease}
+@keyframes fade{from{opacity:0;transform:translateY(10px)}}
+
+/* Intro */
+.intro{display:grid;grid-template-columns:1.15fr .85fr;gap:26px;align-items:center}
+@media (max-width:780px){.intro{grid-template-columns:1fr}}
+.kick{display:inline-block;font-family:"Space Mono",monospace;font-weight:700;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;background:var(--ink);color:var(--paper);padding:5px 10px}
+.intro h1{font-size:clamp(34px,6vw,64px);margin:14px 0 12px;font-weight:900;letter-spacing:-.02em}
+.intro h1 em{font-style:normal;color:var(--terra);text-shadow:3px 3px 0 var(--mustard)}
+.lead{font-size:18.5px;color:var(--ink2);margin:0 0 20px;max-width:58ch}
+.studios{display:grid;gap:12px;margin-bottom:20px}
+.st{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;border:2.5px solid var(--ink);background:#fff;padding:12px;opacity:0;transform:translateX(-14px);animation:slidein .5s cubic-bezier(.2,.8,.2,1) forwards;box-shadow:4px 4px 0 var(--c)}
+.st:nth-child(2){animation-delay:.1s}.st:nth-child(3){animation-delay:.2s}
+@keyframes slidein{to{opacity:1;transform:none}}
+.st svg{width:52px;height:52px}
+.st b{font-family:"Fraunces",serif;font-size:19px;display:block}
+.st span{font-size:14.5px;color:var(--ink2)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:22px}
+.chips span{font-family:"Space Mono",monospace;font-size:12.5px;font-weight:700;border:2px solid var(--ink);padding:4px 10px;background:var(--mustard-l)}
+.btn{display:inline-flex;align-items:center;gap:10px;font-weight:700;font-size:17px;border:3px solid var(--ink);background:var(--sc);color:#fff;padding:12px 22px;cursor:pointer;box-shadow:5px 5px 0 var(--ink);transition:transform .12s, box-shadow .12s}
+.btn:hover{transform:translate(-2px,-2px);box-shadow:7px 7px 0 var(--ink)}
+.btn:active{transform:translate(3px,3px);box-shadow:2px 2px 0 var(--ink)}
+.btn svg{width:20px;height:20px}
+.btn.paper{background:#fff;color:var(--ink)}
+.poster{position:relative;max-width:360px;width:100%;margin:0 auto;aspect-ratio:4/5;border:3px solid var(--ink);background:var(--mustard-l);overflow:hidden}
+.poster svg{width:100%;height:100%;display:block}
+
+/* Question */
+.qhead{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;margin-bottom:12px}
+.qnum{font-family:"Fraunces",serif;font-weight:900;font-size:56px;line-height:.8;color:var(--sc);text-shadow:3px 3px 0 var(--ink)}
+.qtxt{flex:1;min-width:240px}
+.qtxt small{font-family:"Space Mono",monospace;font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink2)}
+.qtxt h2{font-size:clamp(21px,2.8vw,28px);margin:4px 0 6px;overflow-wrap:anywhere}
+.qtxt p{margin:0;color:var(--ink2);font-size:16px}
+.stage{border:2.5px solid var(--ink);background:#fff;padding:14px;margin:16px 0;position:relative;overflow:hidden}
+.stage .cap{font-family:"Space Mono",monospace;font-size:11.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink2);margin-bottom:8px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.stage .cap b{color:var(--sc)}
+.opts{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.opts.c3{grid-template-columns:repeat(3,1fr)}
+@media (max-width:640px){.opts,.opts.c3{grid-template-columns:1fr}}
+.opt{display:flex;align-items:center;gap:12px;text-align:left;border:2.5px solid var(--ink);background:#fff;padding:12px;cursor:pointer;font-weight:600;transition:transform .12s, background .2s;overflow-wrap:anywhere}
+.opt:hover:not([disabled]){transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--sc)}
+.opt .l{flex:none;width:30px;height:30px;display:grid;place-items:center;font-family:"Space Mono",monospace;font-weight:700;border:2px solid var(--ink);background:var(--sl)}
+.opt .ci{flex:none;width:46px;height:38px}
+.opt[disabled]{cursor:default}
+.opt.ok{background:var(--sage-l);border-color:var(--sage-d)}
+.opt.ok .l{background:var(--sage);color:#fff}
+.opt.no{background:var(--terra-l);border-color:var(--terra)}
+.opt.no .l{background:var(--terra);color:#fff}
+.opt.dim{opacity:.45}
+.fb{display:none;margin-top:16px;border:2.5px solid var(--ink);padding:14px 16px;gap:12px;align-items:flex-start;position:relative}
+.fb.show{display:flex;animation:fade .35s}
+.fb.ok{background:var(--sage-l)}
+.fb.no{background:var(--mustard-l)}
+.fb svg{width:42px;height:42px;flex:none}
+.fb b{font-family:"Fraunces",serif;font-size:19px;display:block}
+.fb p{margin:4px 0 0;font-size:16px;overflow-wrap:anywhere}
+.nav{display:flex;justify-content:flex-end;margin-top:16px}
+
+/* Data table with FLIP sorting */
+.dt{position:relative;font-size:13.5px}
+.dt .hdr,.dt .row{display:grid;grid-template-columns:1.6fr 1fr 1fr;gap:8px;align-items:center;padding:0 10px;height:30px}
+.dt .hdr{font-weight:700;border-bottom:2px solid var(--ink);font-family:"Space Mono",monospace;font-size:12px}
+.dt .body{position:relative}
+.dt .row{position:absolute;left:0;right:0;border-bottom:1px dashed #e6d9c9;transition:top .9s cubic-bezier(.3,.8,.2,1), opacity .5s, background .4s}
+.dt .row .n{text-align:right;font-family:"Space Mono",monospace}
+.dt .row.top{background:var(--mustard-l)}
+.dt .row.bad{background:var(--terra-l)}
+.dt .row.bad .n{color:var(--terra);font-weight:700}
+.st5{font-family:"Space Mono",monospace;font-size:11px;font-weight:700;border:1.5px solid var(--ink);padding:0 5px;justify-self:start}
+.st5.nc{background:var(--teal);color:#fff}
+.orders{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:6px}
+.ord{border:1.5px solid var(--ink);padding:4px 6px;font-size:12px;display:flex;justify-content:space-between;gap:4px;background:#fff;transition:opacity .5s, transform .5s, max-height .5s;max-height:40px}
+.ord.hide{opacity:0;transform:scale(.7);max-height:0;padding:0;border-width:0;margin:-3px 0}
+.ord.nc{background:var(--teal-l)}
+.status{margin-top:10px;background:var(--teal);color:#fff;font-family:"Space Mono",monospace;font-size:12.5px;padding:6px 10px;display:flex;gap:16px;justify-content:flex-end;flex-wrap:wrap}
+.status.blue{animation:fade .4s}
+.prices{display:flex;flex-wrap:wrap;gap:6px}
+.pp{border:1.5px solid var(--ink);padding:4px 8px;font-size:12.5px;background:#fff;transition:order 0s}
+.pp b{font-family:"Space Mono",monospace}
+.pp.hi{background:var(--mustard)}.pp.lo{background:var(--peach)}
+
+/* Charts */
+.ch{width:100%;max-width:640px;height:auto;display:block;margin:0 auto}
+.compare .ch{max-width:100%}
+.bar-r{transform-box:fill-box;transform-origin:50% 100%;animation:grow .8s cubic-bezier(.2,.8,.2,1) both}
+.bar-h{transform-box:fill-box;transform-origin:0% 50%;animation:growx .8s cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow{from{transform:scaleY(0)}}
+@keyframes growx{from{transform:scaleX(0)}}
+.drawl{stroke-dasharray:1200;stroke-dashoffset:1200;animation:drawl 1.4s ease forwards}
+@keyframes drawl{to{stroke-dashoffset:0}}
+.popin{transform-box:fill-box;transform-origin:center;animation:popin .5s cubic-bezier(.2,.8,.2,1.5) both}
+@keyframes popin{from{transform:scale(0)}}
+.slice{transform-box:view-box;transform-origin:110px 110px;animation:spinin .9s cubic-bezier(.2,.8,.2,1) both}
+@keyframes spinin{from{transform:rotate(-90deg) scale(.4);opacity:0}}
+.note{font-size:13.5px;color:var(--ink2);margin:8px 0 0}
+.compare{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.compare{grid-template-columns:1fr}}
+.compare>div{border:2px dashed #d7c7b4;padding:8px}
+.compare h4{margin:0 0 4px;font-family:"Space Mono",monospace;font-size:11.5px;letter-spacing:.08em;text-transform:uppercase}
+
+/* Results */
+.res .top{display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+@media (max-width:560px){.res .top{grid-template-columns:1fr}}
+.stampbig{width:150px;height:150px;border-radius:50%;border:5px solid var(--sc);display:grid;place-items:center;text-align:center;transform:rotate(-8deg);font-family:"Fraunces",serif;color:var(--sc);background:#fff;animation:stampin .6s cubic-bezier(.2,.8,.2,1.4)}
+.stampbig b{font-size:42px;display:block;line-height:1}
+.stampbig span{font-family:"Space Mono",monospace;font-size:11.5px;font-weight:700}
+@keyframes stampin{from{transform:rotate(-8deg) scale(2);opacity:0}}
+.miss{margin-top:22px}
+.miss h3{font-size:22px;margin-bottom:10px}
+.mi{border:2px solid var(--ink);background:#fff;padding:10px 12px;margin-bottom:10px;display:grid;grid-template-columns:auto 1fr;gap:12px}
+.mi .t{font-family:"Space Mono",monospace;font-size:12px;font-weight:700;color:#fff;padding:2px 6px;height:fit-content}
+.mi b{display:block;font-size:15.5px;overflow-wrap:anywhere}
+.mi span{font-size:14.5px;color:var(--ink2);overflow-wrap:anywhere}
+.foot{text-align:center;font-size:13px;font-weight:600;color:var(--ink2);margin-top:22px}
+.conf{position:fixed;inset:0;pointer-events:none;z-index:50;overflow:hidden}
+.conf i{position:absolute;top:-16px;width:12px;height:12px;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(105vh) rotate(600deg)}}
+.wob{animation:wob 3s ease-in-out infinite}.wob2{animation:wob 3s ease-in-out -1.4s infinite}
+@keyframes wob{50%{transform:translateY(-6px) rotate(-2deg)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}.st{opacity:1;transform:none}.drawl{stroke-dashoffset:0}}
+</style>
+</head>
+<body>
+<div class="page">
+  <header class="mast">
+    <div class="uni">Nexford University<span>QRS2150 · Module 4 · Practice Activity</span></div>
+    <div class="sheetno"><span id="sno">Print run</span><div class="contact" id="contact" aria-hidden="true"></div></div>
+  </header>
+  <nav class="tabs" id="tabs" aria-label="Studios"></nav>
+  <main class="sheet" id="app"></main>
+  <p class="foot">Bluefinch Coffee Roasters is a fictional company. Bluefinch figures are made up for this course.</p>
+</div>
+<div class="conf" id="conf" aria-hidden="true"></div>
+<script>
+(function(){
+"use strict";
+const C={ink:"#2a1e17",teal:"#134f5c",terra:"#c8553d",sage:"#6a9f58",mustard:"#f2b705",peach:"#ff9f7a",sun:"#ffff02"};
+
+/* ===== Icons drawn for this activity ===== */
+const IC={
+  desk:c=>`<svg viewBox="0 0 60 60" aria-hidden="true"><rect x="3" y="3" width="54" height="54" fill="${c}" stroke="#2a1e17" stroke-width="3"/><g class="wob"><path d="M14 18h22M14 28h16M14 38h10" stroke="#fff" stroke-width="4.5" stroke-linecap="square"/><path d="M44 16v28M38 38l6 7 6-7" fill="none" stroke="#ffff02" stroke-width="4" stroke-linejoin="miter"/></g></svg>`,
+  chooser:c=>`<svg viewBox="0 0 60 60" aria-hidden="true"><rect x="3" y="3" width="54" height="54" fill="${c}" stroke="#2a1e17" stroke-width="3"/><g class="wob2"><rect x="11" y="30" width="7" height="16" fill="#fff"/><rect x="21" y="22" width="7" height="24" fill="#fff"/><path d="M32 40l7-9 6 5 7-12" fill="none" stroke="#ffff02" stroke-width="3.5"/><circle cx="44" cy="18" r="6" fill="none" stroke="#fff" stroke-width="3"/><path d="M44 12v6h6" fill="#fff" stroke="#fff" stroke-width="1"/></g></svg>`,
+  clinic:c=>`<svg viewBox="0 0 60 60" aria-hidden="true"><rect x="3" y="3" width="54" height="54" fill="${c}" stroke="#2a1e17" stroke-width="3"/><g class="wob"><path d="M14 46V26M24 46V18M34 46V30" stroke="#fff" stroke-width="6"/><path d="M10 46h30" stroke="#fff" stroke-width="3"/><circle cx="44" cy="22" r="8" fill="#ffff02" stroke="#2a1e17" stroke-width="2.5"/><path d="M44 18v8M40 22h8" stroke="#2a1e17" stroke-width="2.5"/></g></svg>`,
+  ok:`<svg viewBox="0 0 42 42" aria-hidden="true"><circle cx="21" cy="21" r="18" fill="#6a9f58" stroke="#2a1e17" stroke-width="3"/><path d="M13 22l6 6 11-13" fill="none" stroke="#fff" stroke-width="4" stroke-dasharray="34" stroke-dashoffset="34"><animate attributeName="stroke-dashoffset" to="0" dur=".45s" fill="freeze"/></path></svg>`,
+  no:`<svg viewBox="0 0 42 42" aria-hidden="true"><path d="M21 3l19 34H2z" fill="#f2b705" stroke="#2a1e17" stroke-width="3" stroke-linejoin="round"/><path d="M21 15v11" stroke="#2a1e17" stroke-width="4"/><circle cx="21" cy="31" r="2.4" fill="#2a1e17"/></svg>`,
+  arrow:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h15M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="3"/></svg>`,
+  again:`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="3"/></svg>`,
+  /* chart-type mini icons */
+  tColumn:`<svg class="ci" viewBox="0 0 46 38" aria-hidden="true"><path d="M3 35h40" stroke="#2a1e17" stroke-width="2"/><rect x="7" y="18" width="8" height="17" fill="#c8553d"/><rect x="19" y="8" width="8" height="27" fill="#134f5c"/><rect x="31" y="22" width="8" height="13" fill="#f2b705"/></svg>`,
+  tBar:`<svg class="ci" viewBox="0 0 46 38" aria-hidden="true"><path d="M5 3v32" stroke="#2a1e17" stroke-width="2"/><rect x="5" y="6" width="34" height="7" fill="#134f5c"/><rect x="5" y="16" width="24" height="7" fill="#c8553d"/><rect x="5" y="26" width="15" height="7" fill="#f2b705"/></svg>`,
+  tLine:`<svg class="ci" viewBox="0 0 46 38" aria-hidden="true"><path d="M3 35h40M3 3v32" stroke="#2a1e17" stroke-width="2"/><path d="M6 30l9-7 8 3 9-11 10-6" fill="none" stroke="#c8553d" stroke-width="3"/><circle cx="42" cy="9" r="2.5" fill="#134f5c"/></svg>`,
+  tPie:`<svg class="ci" viewBox="0 0 46 38" aria-hidden="true"><circle cx="23" cy="19" r="15" fill="#134f5c"/><path d="M23 19V4a15 15 0 0 1 14 20z" fill="#c8553d"/><path d="M23 19l14 5a15 15 0 0 1-8 9z" fill="#f2b705"/></svg>`,
+  tScatter:`<svg class="ci" viewBox="0 0 46 38" aria-hidden="true"><path d="M3 35h40M3 3v32" stroke="#2a1e17" stroke-width="2"/>${[[9,29],[14,25],[18,27],[22,19],[27,20],[31,13],[36,11],[40,7]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="#134f5c"/>`).join("")}</svg>`
+};
+
+/* ===== Data from the Module 4 practice workbook ===== */
+const PROD=[["Drip coffee","Coffee",17946],["Americano","Coffee",7150],["Latte","Coffee",28673],["Cappuccino","Coffee",12585],["Mocha","Coffee",8270],["Cold brew","Coffee",9839],["Hot tea","Tea",3653],["Blueberry muffin","Food",7372],["Butter croissant","Food",8719],["Breakfast sandwich","Food",10063],["House Blend beans, 12 oz bag","Retail beans",8333],["Single-origin beans, 12 oz bag","Retail beans",5490]];
+const ORD=[[48,"VA"],[34,"SC"],[36,"TX"],[108,"NY"],[102,"NC"],[34,"NC"],[16,"SC"],[34,"NC"],[16,"NY"],[54,"GA"],[34,"NC"],[32,"NY"],[102,"NC"],[68,"NC"],[51,"VA"],[36,"NC"],[108,"TX"],[15,"GA"],[108,"NC"],[34,"SC"],[34,"GA"],[17,"SC"],[36,"VA"],[16,"NC"],[34,"NY"],[34,"VA"],[102,"VA"],[108,"NC"],[34,"TX"],[32,"NC"]];
+const ONLINE=[["Jan",9247],["Feb",9591],["Mar",9634],["Apr",9620],["May",10215],["Jun",10412],["Jul",10504],["Aug",10333],["Sep",10727],["Oct",10880],["Nov",11299],["Dec",11161]];
+const CAT=[["Coffee",30400],["Food",10900],["Tea",1700],["Retail beans",3600]];
+const DAYS=[[274,1669.31],[219,1329.64],[208,1279.02],[268,1739.24],[314,1912.42],[321,2007.04],[286,1805.18],[224,1404.06],[326,1937.23],[306,1835.16],[259,1539.04],[310,2014.19],[364,2349.2],[242,1547.22]];
+const QTR=[["Q1",119800],["Q2",127300],["Q3",122600],["Q4",139400]];
+const FIX=[["Online",41900],["Wholesale",44300]];
+const ICIP=[["Dec 24",0],["Feb 25",354.32],["Jul 25",259.31],["Nov 25",330.44]];
+const money=v=>"$"+Math.round(v).toLocaleString("en-US");
+
+/* ===== Chart renderers (SVG) ===== */
+function esc(t){return String(t).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));}
+function colChart(data,o={}){
+  const W=520,H=280,L=o.ytitle?78:62,R=16,T=o.title!==undefined?46:20,B=o.xtitle?56:36;
+  const min=o.min||0, max=o.max||Math.max(...data.map(d=>d[1]))*1.12;
+  const pw=W-L-R, ph=H-T-B, bw=pw/data.length*0.56;
+  const y=v=>T+ph-(v-min)/(max-min)*ph;
+  let s=`<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.alt||"Column chart")}">`;
+  if(o.title!==undefined) s+=`<text x="${W/2}" y="26" text-anchor="middle" font-family="Fraunces,serif" font-weight="700" font-size="${o.title.length>44?15:18}" fill="${C.ink}">${esc(o.title)}</text>`;
+  for(let k=0;k<=4;k++){const v=min+(max-min)*k/4;const yy=y(v);s+=`<line x1="${L}" x2="${W-R}" y1="${yy}" y2="${yy}" stroke="#eadfce" stroke-width="1"/><text x="${L-8}" y="${yy+4}" text-anchor="end" font-family="Space Mono,monospace" font-size="11" fill="${C.ink}">${o.fmt?o.fmt(v):money(v)}</text>`;}
+  data.forEach((d,i)=>{const x=L+pw/data.length*(i+.5)-bw/2;const yy=y(d[1]);const col=(o.colors&&o.colors[i])||C.teal;
+    s+=`<rect class="bar-r" style="animation-delay:${i*90}ms" x="${x}" y="${yy}" width="${bw}" height="${T+ph-yy}" fill="${col}" stroke="${C.ink}" stroke-width="1.5"/>`;
+    s+=`<text x="${x+bw/2}" y="${T+ph+18}" text-anchor="middle" font-family="Work Sans,sans-serif" font-weight="600" font-size="12.5" fill="${C.ink}">${esc(d[0])}</text>`;
+    if(o.labels) s+=`<text class="popin" style="animation-delay:${400+i*90}ms" x="${x+bw/2}" y="${yy-7}" text-anchor="middle" font-family="Space Mono,monospace" font-weight="700" font-size="12" fill="${C.ink}">${o.fmt?o.fmt(d[1]):money(d[1])}</text>`;});
+  s+=`<line x1="${L}" x2="${W-R}" y1="${T+ph}" y2="${T+ph}" stroke="${C.ink}" stroke-width="2"/>`;
+  if(o.ytitle) s+=`<text transform="translate(16 ${T+ph/2}) rotate(-90)" text-anchor="middle" font-family="Work Sans,sans-serif" font-weight="700" font-size="12.5" fill="${C.ink}">${esc(o.ytitle)}</text>`;
+  if(o.xtitle) s+=`<text x="${L+pw/2}" y="${H-10}" text-anchor="middle" font-family="Work Sans,sans-serif" font-weight="700" font-size="12.5" fill="${C.ink}">${esc(o.xtitle)}</text>`;
+  if(o.legend) s+=`<rect x="${W-R-92}" y="${T-2}" width="12" height="12" fill="${C.teal}"/><text x="${W-R-74}" y="${T+8}" font-family="Work Sans,sans-serif" font-size="12" fill="${C.ink}">Series1</text>`;
+  if(o.broken) s+=`<text x="${L+4}" y="${T+ph-6}" font-family="Space Mono,monospace" font-size="11" fill="${C.terra}" font-weight="700">axis starts at ${money(min)}</text>`;
+  return s+`</svg>`;
+}
+function barChart(data,o={}){
+  const W=520,rowH=24,L=210,R=70,T=14,H=T+data.length*rowH+12;const max=Math.max(...data.map(d=>d[1]));
+  let s=`<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.alt||"Bar chart")}">`;
+  data.forEach((d,i)=>{const w=(W-L-R)*d[1]/max;const yy=T+i*rowH;
+    s+=`<text x="${L-8}" y="${yy+15}" text-anchor="end" font-family="Work Sans,sans-serif" font-size="12" fill="${C.ink}">${esc(d[0])}</text><rect class="bar-h" style="animation-delay:${i*50}ms" x="${L}" y="${yy+3}" width="${w}" height="${rowH-8}" fill="${i<5?C.terra:C.teal}" stroke="${C.ink}" stroke-width="1"/><text x="${L+w+6}" y="${yy+15}" font-family="Space Mono,monospace" font-size="11" fill="${C.ink}">${money(d[1])}</text>`;});
+  return s+`<line x1="${L}" x2="${L}" y1="${T}" y2="${H-10}" stroke="${C.ink}" stroke-width="2"/></svg>`;
+}
+function lineChart(data,o={}){
+  const W=520,H=260,L=66,R=20,T=o.title?40:16,B=40;const vals=data.map(d=>d[1]);const min=o.min!==undefined?o.min:Math.min(...vals)*.95,max=Math.max(...vals)*1.04;
+  const pw=W-L-R,ph=H-T-B;const x=i=>L+pw*i/(data.length-1);const y=v=>T+ph-(v-min)/(max-min)*ph;
+  let s=`<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="${esc(o.alt||"Line chart")}">`;
+  if(o.title) s+=`<text x="${W/2}" y="24" text-anchor="middle" font-family="Fraunces,serif" font-weight="700" font-size="16" fill="${C.ink}">${esc(o.title)}</text>`;
+  for(let k=0;k<=3;k++){const v=min+(max-min)*k/3;s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="#eadfce"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-family="Space Mono,monospace" font-size="11" fill="${C.ink}">${o.fmt?o.fmt(v):money(v)}</text>`;}
+  const pts=data.map((d,i)=>`${x(i)},${y(d[1])}`);
+  if(o.split!==undefined){
+    const a=pts.slice(0,o.split+1).join(" "), b=pts.slice(o.split).join(" ");
+    s+=`<polyline class="drawl" points="${a}" fill="none" stroke="${C.terra}" stroke-width="3.5"/><polyline class="drawl" style="animation-delay:.6s" points="${b}" fill="none" stroke="${C.terra}" stroke-width="3.5" stroke-dasharray="7 6"/>`;
+  } else s+=`<polyline class="drawl" points="${pts.join(" ")}" fill="none" stroke="${C.terra}" stroke-width="3.5"/>`;
+  data.forEach((d,i)=>{s+=`<circle class="popin" style="animation-delay:${300+i*70}ms" cx="${x(i)}" cy="${y(d[1])}" r="4.5" fill="#fff" stroke="${C.terra}" stroke-width="2.5"/><text x="${x(i)}" y="${H-18}" text-anchor="middle" font-family="Work Sans,sans-serif" font-size="${data.length>8?11:12}" font-weight="600" fill="${C.ink}">${esc(d[0])}</text>`;
+    if(o.labels) s+=`<text x="${x(i)}" y="${y(d[1])-10}" text-anchor="middle" font-family="Space Mono,monospace" font-size="11" font-weight="700" fill="${C.ink}">${o.fmt?o.fmt(d[1]):money(d[1])}</text>`;});
+  if(o.lines2){ /* two-series chart for color check */ }
+  return s+`<line x1="${L}" x2="${W-R}" y1="${T+ph}" y2="${T+ph}" stroke="${C.ink}" stroke-width="2"/></svg>`;
+}
+function pieChart(data,o={}){
+  const tot=data.reduce((a,d)=>a+d[1],0);let a0=-Math.PI/2;const cols=[C.teal,C.terra,C.mustard,C.sage,C.peach];
+  let s=`<svg class="ch" viewBox="0 0 520 220" role="img" aria-label="${esc(o.alt||"Pie chart")}">`;
+  data.forEach((d,i)=>{const a1=a0+d[1]/tot*Math.PI*2;const large=a1-a0>Math.PI?1:0;
+    const p=`M110 110 L${110+95*Math.cos(a0)} ${110+95*Math.sin(a0)} A95 95 0 ${large} 1 ${110+95*Math.cos(a1)} ${110+95*Math.sin(a1)}Z`;
+    s+=`<path class="slice" style="animation-delay:${i*120}ms" d="${p}" fill="${cols[i%cols.length]}" stroke="#fff" stroke-width="2"/>`;
+    s+=`<rect x="240" y="${30+i*40}" width="16" height="16" fill="${cols[i%cols.length]}" stroke="${C.ink}" stroke-width="1"/><text x="264" y="${43+i*40}" font-family="Work Sans,sans-serif" font-size="14" font-weight="600" fill="${C.ink}">${esc(d[0])}: ${money(d[1])} (${Math.round(d[1]/tot*100)}%)</text>`;
+    a0=a1;});
+  return s+`</svg>`;
+}
+function scatterChart(data){
+  const W=520,H=270,L=74,R=20,T=16,B=52;const xs=data.map(d=>d[0]),ys=data.map(d=>d[1]);
+  const x0=190,x1=380,y0=1200,y1=2400;const pw=W-L-R,ph=H-T-B;const x=v=>L+(v-x0)/(x1-x0)*pw,y=v=>T+ph-(v-y0)/(y1-y0)*ph;
+  let s=`<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Scatter chart of customers and total sales for 14 days; the dots rise from left to right">`;
+  [1200,1600,2000,2400].forEach(v=>{s+=`<line x1="${L}" x2="${W-R}" y1="${y(v)}" y2="${y(v)}" stroke="#eadfce"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-family="Space Mono,monospace" font-size="11" fill="${C.ink}">${money(v)}</text>`;});
+  [200,250,300,350].forEach(v=>{s+=`<text x="${x(v)}" y="${T+ph+18}" text-anchor="middle" font-family="Space Mono,monospace" font-size="11" fill="${C.ink}">${v}</text>`;});
+  data.forEach((d,i)=>{s+=`<circle class="popin" style="animation-delay:${i*70}ms" cx="${x(d[0])}" cy="${y(d[1])}" r="7" fill="${d[0]===364||d[0]===208?C.terra:C.teal}" stroke="${C.ink}" stroke-width="1.5" opacity=".9"/>`;});
+  s+=`<line x1="${L}" x2="${W-R}" y1="${T+ph}" y2="${T+ph}" stroke="${C.ink}" stroke-width="2"/><line x1="${L}" x2="${L}" y1="${T}" y2="${T+ph}" stroke="${C.ink}" stroke-width="2"/>`;
+  s+=`<text x="${L+pw/2}" y="${H-8}" text-anchor="middle" font-family="Work Sans,sans-serif" font-weight="700" font-size="12.5" fill="${C.ink}">Customers per day</text><text transform="translate(14 ${T+ph/2}) rotate(-90)" text-anchor="middle" font-family="Work Sans,sans-serif" font-weight="700" font-size="12.5" fill="${C.ink}">Total sales (US$)</text>`;
+  return s+`</svg>`;
+}
+function twoLines(fixed){
+  const a=[["Q1",30],["Q2",34],["Q3",33],["Q4",38]],b=[["Q1",26],["Q2",27],["Q3",31],["Q4",35]];
+  const W=520,H=230,L=40,R=fixed?110:30,T=16,B=36,pw=W-L-R,ph=H-T-B;const x=i=>L+pw*i/3,y=v=>T+ph-(v-20)/22*ph;
+  let s=`<svg class="ch" viewBox="0 0 ${W} ${H}" role="img" aria-label="Two-line chart">`;
+  const ln=(d,col,dash,lab)=>`<polyline class="drawl" points="${d.map((p,i)=>`${x(i)},${y(p[1])}`).join(" ")}" fill="none" stroke="${col}" stroke-width="3.5" ${dash?'stroke-dasharray="8 6"':""}/>`+(fixed?`<text x="${x(3)+8}" y="${y(d[3][1])+4}" font-family="Work Sans,sans-serif" font-weight="700" font-size="13" fill="${C.ink}">${lab}</text>`:"");
+  s+=ln(a,fixed?C.teal:"#d62828",false,"Café")+ln(b,fixed?C.terra:"#2a9d2a",fixed,"Online");
+  a.forEach((p,i)=>{s+=`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-family="Work Sans,sans-serif" font-size="12" fill="${C.ink}">${p[0]}</text>`;});
+  return s+`<line x1="${L}" x2="${W-R}" y1="${T+ph}" y2="${T+ph}" stroke="${C.ink}" stroke-width="2"/></svg>`+(fixed?"":`<p class="note">Only color tells the two lines apart.</p>`);
+}
+
+/* ===== Stage builders ===== */
+function prodTable(mode,s){
+  const order=PROD.map((p,i)=>i);
+  let pos=order.slice();
+  let names=PROD.map(p=>p[0]);
+  if(s&&(mode==="sort"||mode==="fifth")) pos=order.slice().sort((a,b)=>PROD[b][2]-PROD[a][2]);
+  const rank={}; pos.forEach((idx,r)=>rank[idx]=r);
+  if(mode==="broken"&&s){ /* revenue sorted, names unchanged */
+    const sortedRev=PROD.map(p=>p[2]).sort((a,b)=>b-a);
+    return `<div class="dt"><div class="hdr"><span>Product</span><span>Category</span><span style="text-align:right">Q1 revenue</span></div><div class="body" style="height:${12*30}px">${PROD.map((p,i)=>`<div class="row bad" style="top:${i*30}px"><span>${esc(p[0])}</span><span>${p[1]}</span><span class="n">${money(sortedRev[i])}</span></div>`).join("")}</div></div><p class="note">Drip coffee now shows Latte's $28,673. Every row's revenue belongs to another product.</p>`;
+  }
+  return `<div class="dt"><div class="hdr"><span>Product</span><span>Category</span><span style="text-align:right">Q1 revenue</span></div><div class="body" id="dtb" style="height:${12*30}px">${PROD.map((p,i)=>`<div class="row ${s&&((mode==="sort"&&rank[i]===0)||(mode==="fifth"&&rank[i]===4))?"top":""}" data-i="${i}" style="top:${(s?i:i)*30}px" data-to="${rank[i]*30}"><span>${esc(p[0])}</span><span>${p[1]}</span><span class="n">${money(p[2])}</span></div>`).join("")}</div></div>`;
+}
+function ordersGrid(mode,s){
+  const hide = s&&mode==="nc";
+  const nc=ORD.filter(o=>o[1]==="NC");
+  return `<div class="orders">${ORD.map(o=>`<div class="ord ${o[1]==="NC"?"nc":""} ${hide&&o[1]!=="NC"?"hide":""}"><span class="mono">$${o[0]}</span><span class="st5 ${o[1]==="NC"?"nc":""}">${o[1]}</span></div>`).join("")}</div>
+  <div class="status">${hide?`<span>Count: ${nc.length}</span><span>Sum: $${nc.reduce((a,o)=>a+o[0],0).toFixed(2)}</span><span>Filter: NC</span>`:(mode==="clear"&&s?`<span>Filter cleared · 30 of 30 rows showing</span>`:`<span>30 online orders, April</span>`)}</div>`;
+}
+const STAGE={
+ sort:s=>({cap:"2a Top Products · 12 rows",html:prodTable("sort",s)}),
+ fifth:s=>({cap:"2a Top Products · sorted largest to smallest",html:prodTable(s?"fifth":"sort",true)}),
+ broken:s=>({cap:"2a Top Products · only column C selected",html:prodTable("broken",s)}),
+ nc:s=>({cap:"2b Orders by State · Line Total and state",html:ordersGrid("nc",s)}),
+ clear:s=>({cap:"2b Orders by State · filter on NC",html:s?ordersGrid("clear",true):ordersGrid("nc",true)}),
+ az:s=>({cap:"Menu list",html:`<div class="prices">${(s?PROD.map(p=>p[0]).slice().sort((a,b)=>a.localeCompare(b)):PROD.map(p=>p[0])).map((n,i)=>`<span class="pp" style="${s?`animation:fade .4s ${i*40}ms both`:""}">${esc(n)}</span>`).join("")}</div>`}),
+ icip:s=>{const P=[["Dec 2024","..."],["Feb 2025",354.32],["Jul 2025",259.31],["Nov 2025",330.44]];
+   return {cap:"ICO Composite Indicator Price · US cents per pound",html:s?`<div class="compare"><div><h4>Sorted largest to smallest</h4><div class="prices"><span class="pp hi">Feb 2025 <b>354.32</b></span><span class="pp">…</span><span class="pp lo">Jul 2025 <b>259.31</b></span></div><p class="note">Highest and lowest jump out, about 95 cents apart.</p></div><div><h4>Kept in month order</h4><svg class="ch" viewBox="0 0 220 90" aria-hidden="true"><polyline class="drawl" points="10,30 40,12 80,40 110,78 150,55 200,28" fill="none" stroke="${C.terra}" stroke-width="3"/><text x="40" y="10" font-size="9" font-family="Space Mono,monospace">Feb</text><text x="104" y="88" font-size="9" font-family="Space Mono,monospace">Jul</text><text x="186" y="22" font-size="9" font-family="Space Mono,monospace">Nov</text></svg><p class="note">The fall to July and the recovery only show in time order.</p></div></div>`:`<p style="margin:0">Twelve monthly prices, December 2024 to November 2025. Highest: February 2025 (354.32). Lowest: July 2025 (259.31). November 2025: 330.44.</p>`};},
+ line:s=>({cap:"3a Online Year · online sales by month",html:s?lineChart(ONLINE,{alt:"Line chart of online sales rising from $9,247 in January to $11,299 in November"}):tableMini(ONLINE)}),
+ channels:s=>({cap:"Chart type preview · three channels, no values shown",html:s?colChart([["Café",3],["Online",2],["Wholesale",2.4]],{max:3.4,fmt:()=>"",alt:"Column chart preview comparing three channels",colors:[C.teal,C.terra,C.mustard]})+`<p class="note">Each channel gets its own bar, side by side, so the tallest stands out.</p>`:`<p style="margin:0">Three categories: Café, Online, and Wholesale. No time order.</p>`}),
+ pie:s=>({cap:"3b Two Questions · café revenue by category",html:s?pieChart(CAT,{alt:"Pie chart: Coffee 65 percent of café revenue"}):tableMini(CAT)}),
+ scatter:s=>({cap:"3b Two Questions · 14 days",html:s?scatterChart(DAYS)+`<p class="note">Busiest day: 364 customers, $2,349.20. Quietest: 208 customers, $1,279.02.</p>`:`<p style="margin:0">Two number columns for 14 days: Customers (208 to 364) and Total sales ($1,279.02 to $2,349.20).</p>`}),
+ bar:s=>({cap:"2a Top Products · 12 products, Q1 revenue",html:s?barChart(PROD.slice().sort((a,b)=>b[2]-a[2]).map(p=>[p[0],p[2]]),{alt:"Bar chart of Q1 revenue for twelve products"}):`<p style="margin:0">Twelve products with long names, such as "Single-origin beans, 12 oz bag."</p>`}),
+ pie12:s=>({cap:"3a Online Year · same data, two charts",html:`<div class="compare"><div><h4>Pie, 12 slices</h4>${pieMini12()}</div><div><h4>Line</h4>${s?lineChart(ONLINE,{alt:"Line chart of online sales"}):`<p class="note">Choose an answer to see it.</p>`}</div></div>`}),
+ wb:s=>({cap:"World Bank · Arabica, US$ per kg",html:s?lineChart([["2023",4.54],["2024",5.62],["2025",8.47],["2026 (forecast)",7.25],["2027 (forecast)",7.00]],{split:2,labels:true,fmt:v=>"$"+v.toFixed(2),min:4,alt:"Line chart of Arabica prices, 2023 to 2025, with 2026 and 2027 forecasts labeled"}):tableMini([["2023","$4.54"],["2024","$5.62"],["2025","$8.47"],["2026","$7.25 (forecast)"],["2027","$7.00 (forecast)"]],true)}),
+ title:s=>({cap:"4a Quarterly Sales",html:colChart(QTR,{title:s?"Café sales were highest in Q4 ($139,400)":"Chart Title",alt:"Column chart of café sales by quarter"})}),
+ axis:s=>({cap:"4a Quarterly Sales",html:colChart(QTR,{title:"Café sales were highest in Q4 ($139,400)",ytitle:s?"Café sales (US$)":undefined,xtitle:s?"Quarter":undefined})}),
+ zero:s=>({cap:"4b Fix the Chart · Q4 sales",html:colChart(FIX,{title:s?"Wholesale crushes Online":"Wholesale crushes Online",min:s?0:40000,max:s?48000:46000,broken:!s,labels:s,colors:[C.teal,C.terra]})+`<p class="note">${s?"From $0, the bars look almost the same: the honest picture.":"Wholesale's bar looks about twice as tall as Online's."}</p>`}),
+ honest:s=>({cap:"4b Fix the Chart · Q4 sales",html:colChart(FIX,{title:s?"Wholesale sold about 6% more than Online in Q4":"Wholesale crushes Online",min:0,max:50000,labels:true,colors:[C.teal,C.terra],ytitle:"Q4 sales (US$)"})}),
+ legend:s=>({cap:"4a Quarterly Sales",html:colChart(QTR,{title:"Café sales were highest in Q4 ($139,400)",legend:!s,labels:s,ytitle:"Café sales (US$)"})}),
+ color:s=>({cap:"Two series",html:twoLines(s)}),
+ aca:s=>({cap:"Government Analysis Function example",html:`<div class="compare"><div><h4>Axis starts at 5.4 million</h4>${colChart([["Mar 27",6],["Goal",7.066]],{min:5.4,max:7.2,fmt:v=>v.toFixed(1)+"M",colors:[C.teal,C.terra]})}</div><div><h4>Axis starts at zero</h4>${s?colChart([["Mar 27",6],["Goal",7.066]],{min:0,max:8,fmt:v=>(Number.isInteger(v)?v:v.toFixed(3))+"M",labels:true,colors:[C.teal,C.terra]}):`<p class="note">Choose an answer to see it.</p>`}</div></div>`}),
+ alt:s=>({cap:"4a Quarterly Sales · finished chart",html:colChart(QTR,{title:"Café sales were highest in Q4 ($139,400)",labels:true,ytitle:"Café sales (US$)",xtitle:"Quarter"})+(s?`<p class="note"><b>Alt text:</b> Column chart of café sales by quarter: Q1 $119,800, Q2 $127,300, Q3 $122,600, Q4 $139,400.</p>`:"")})
+};
+function tableMini(rows,raw){return `<table style="border-collapse:collapse;font-size:13.5px;width:100%">${rows.map(r=>`<tr><td style="border-bottom:1px dashed #e6d9c9;padding:4px 6px">${esc(r[0])}</td><td style="border-bottom:1px dashed #e6d9c9;padding:4px 6px;text-align:right;font-family:Space Mono,monospace">${raw?esc(r[1]):money(r[1])}</td></tr>`).join("")}</table>`;}
+function pieMini12(){const tot=ONLINE.reduce((a,d)=>a+d[1],0);let a0=-Math.PI/2;const cols=[C.teal,C.terra,C.mustard,C.sage,C.peach,"#8a6d5a"];let s=`<svg class="ch" viewBox="0 0 220 220" aria-hidden="true">`;
+  ONLINE.forEach((d,i)=>{const a1=a0+d[1]/tot*Math.PI*2;s+=`<path d="M110 110 L${110+95*Math.cos(a0)} ${110+95*Math.sin(a0)} A95 95 0 0 1 ${110+95*Math.cos(a1)} ${110+95*Math.sin(a1)}Z" fill="${cols[i%6]}" stroke="#fff" stroke-width="1.5"/>`;a0=a1;});return s+`</svg><p class="note">Twelve thin slices: no trend in sight.</p>`;}
+
+/* ===== Studios and questions ===== */
+const S3=[
+ {key:"desk",name:"The Sort and Filter Desk",short:"Sort & Filter",obj:"Objective 4.1",blurb:"Put the answer at the top, or show only the rows that matter.",c:C.terra,l:"#fbe3da",icon:IC.desk},
+ {key:"choose",name:"The Chart Chooser",short:"Chart Chooser",obj:"Objective 4.2",blurb:"Match each question to the chart that answers it.",c:C.teal,l:"#d9eceb",icon:IC.chooser},
+ {key:"clinic",name:"The Honest Chart Clinic",short:"Chart Clinic",obj:"Objective 4.3",blurb:"Fix default charts so they make one clear, honest point.",c:"#4b7d3b",l:"#e6f2dd",icon:IC.clinic}
+];
+const CT={column:["Column",IC.tColumn],bar:["Bar",IC.tBar],line:["Line",IC.tLine],pie:["Pie",IC.tPie],scatter:["Scatter",IC.tScatter]};
+const Q={
+desk:[
+ {q:"You select a cell in Q1 revenue and choose Sort Largest to Smallest. Which product lands in row 2?",h:"Every row moves with its revenue.",o:["Drip coffee","Latte","Cappuccino","Breakfast sandwich"],a:1,st:"sort",why:"Latte has the highest Q1 revenue, $28,673, so it moves to the top. Check one row afterward: Latte still shows Coffee and its own revenue."},
+ {q:"After the sort, which product is in fifth place?",h:"Count down from the top.",o:["Breakfast sandwich","Butter croissant","Cold brew","Mocha"],a:2,st:"fifth",why:"The top five are Latte ($28,673), Drip coffee ($17,946), Cappuccino ($12,585), Breakfast sandwich ($10,063), and Cold brew ($9,839)."},
+ {q:"A colleague selects only the revenue column, sorts it largest to smallest, and chooses to continue with the current selection. What goes wrong?",h:"Think about the rows.",o:["Nothing; it sorts the same way","The revenues are reordered but the product names aren't, so each product shows another product's revenue","Excel deletes the product names","Only the top five rows are sorted"],a:1,st:"broken",why:"Sorting one column on its own separates the values from their rows. Always expand the selection to the whole table."},
+ {q:"You filter Ship to state to NC only and select the visible Line Total cells. What does the status bar show?",h:"Thirty online orders from April.",o:["Count 30, Sum $1,000.00","Count 11, Sum $674.00","Count 11, Sum $1,682.00","Count 6, Sum $674.00"],a:1,st:"nc",why:"Eleven orders went to North Carolina, and their line totals add up to $674.00, more than any other state on the sheet."},
+ {q:"With the NC filter on, the other 19 orders aren't showing. What happened to them?",h:"Filtering isn't deleting.",o:["They were deleted","They were moved to a new sheet","They're hidden; clear the filter and all 30 orders show again","They were sorted to the bottom"],a:2,st:"clear",why:"A filter hides rows without deleting them, and the row numbers turn blue to remind you. Clearing the filter brings every row back."},
+ {q:"The café manager wants the products listed alphabetically for a printed menu. What do you do?",h:"Text, not numbers.",o:["Sort A to Z on Product","Filter Product to the first letter","Sort Largest to Smallest on revenue","Sort Z to A on Product"],a:0,st:"az",why:"Sort A to Z orders text alphabetically (ascending). Every row moves with its product."},
+ {q:"You sort the ICO's twelve monthly coffee prices from largest to smallest. What does the sorted list lose?",h:"Recall the case study.",o:["The highest price","The lowest price","The order through time, so you can't see the fall to July and the recovery","Nothing at all"],a:2,st:"icip",why:"Sorting shows the highest (February 2025, 354.32) and lowest (July 2025, 259.31) months fast, but breaks the time order. Keep the original order, or use a line chart, when the question is about change over time."}
+],
+choose:[
+ {q:"How did online sales change from January to December?",h:"Pick the chart that answers the question.",ct:["column","line","pie","scatter"],a:1,st:"line",why:"A line chart shows change over time. Online sales rise from $9,247 in January to $11,299 in November, with a small dip in December ($11,161)."},
+ {q:"Which of three channels (Café, Online, Wholesale) sold the most this year?",h:"A few categories, no time order.",ct:["line","column","scatter","pie"],a:1,st:"channels",why:"A column chart compares a few categories. A line chart would suggest change over time, and the channels aren't in time order."},
+ {q:"What share of café revenue comes from each of four categories?",h:"Parts of one whole.",ct:["pie","line","scatter"],a:0,st:"pie",why:"With only four slices, a pie works (a bar chart is fine too). Coffee is about 65% of café revenue: $30,400 of $46,600."},
+ {q:"Do days with more customers bring in more sales?",h:"Two number columns.",ct:["line","column","scatter","pie"],a:2,st:"scatter",why:"A scatter chart shows whether two measures move together. The dots rise from left to right: busier days bring in more sales. A line would suggest a time trend that isn't there."},
+ {q:"Compare Q1 revenue for twelve products with long names, such as \"Single-origin beans, 12 oz bag.\"",h:"Think about where the names will fit.",ct:["column","bar","line","pie"],a:1,st:"bar",why:"A bar chart does the same job as a column chart, and horizontal bars leave room for long category names."},
+ {q:"Someone charts twelve months of online sales as a pie. What's the problem?",h:"Compare the two charts.",o:["Pies can't show money","Twelve thin slices are hard to compare, and you can't see the trend","Pies always need a legend","Nothing; a pie is the best choice"],a:1,st:"pie12",why:"The question is about change over time. Twelve slices hide the trend that a line chart shows at a glance."},
+ {q:"You chart World Bank Arabica prices for 2023 to 2027 as a line. The last two values are forecasts. How should you mark them?",h:"Color shouldn't be the only signal.",o:["Color those points red","Label them in the axis or data labels, such as \"2026 (forecast)\"","Leave them out","Use a pie chart instead"],a:1,st:"wb",why:"A text label like \"2026 (forecast)\" works for everyone, even in black and white. A dashed line can help too, as long as the label is there."}
+],
+clinic:[
+ {q:"A column chart of quarterly café sales is titled \"Chart Title.\" Which title is best?",h:"A good title states the point.",o:["Chart Title","Café sales","Café sales were highest in Q4 ($139,400)","Quarterly data, column chart"],a:2,st:"title",why:"A title that states the insight tells the owners what to see before they read a single bar."},
+ {q:"The same chart has no labels on its axes. What should you add?",h:"Say what each axis measures.",o:["A second title","Axis titles with units, such as \"Café sales (US$)\" and \"Quarter\"","A legend","A background color"],a:1,st:"axis",why:"Axis titles say what is measured and in what units, so nobody has to guess."},
+ {q:"A colleague's Q4 chart starts its vertical axis at $40,000, so Wholesale's bar looks twice as tall as Online's. What's the fix?",h:"Bars are judged by their length.",o:["Make the Wholesale bar a brighter color","Set the vertical axis minimum to 0","Switch to a pie chart","Remove the axis"],a:1,st:"zero",why:"With the axis at $40,000, a small gap looks huge. From $0, the bars look almost the same, which is the honest picture."},
+ {q:"Online sold $41,900 and Wholesale $44,300 in Q4. Which title is honest?",h:"Work out the real difference.",o:["Wholesale crushes Online","Wholesale sold twice as much as Online","Wholesale sold about 6% more than Online in Q4","Online is failing"],a:2,st:"honest",why:"Wholesale sold $2,400 more, about 6%. An honest title states the real difference."},
+ {q:"A one-series chart has a legend that says \"Series1.\" What should you do?",h:"Remove clutter.",o:["Rename it Series2","Delete the legend","Move it to the top","Add a second legend"],a:1,st:"legend",why:"A legend that names only one series adds nothing. Delete it, and add data labels where exact values help."},
+ {q:"Two lines on a chart are told apart only by red and green. What's the fix?",h:"Some colleagues can't tell some colors apart.",o:["Make the colors brighter","Label each line directly, or use different line styles","Add more colors","Remove one line"],a:1,st:"color",why:"Labels or line styles work in black and white and for everyone. Color should never be the only signal."},
+ {q:"In the UK government chart guidance example, enrollment was 6 million against a goal of 7.066 million. What's the real gap?",h:"Divide the goal by the actual.",o:["About 3 times","About 18%","About 7%","About 50%"],a:1,st:"aca",why:"7.066 ÷ 6 is about 1.18, an 18% gap. With the axis cut at 5.4 million, the goal's bar looked about three times as tall."},
+ {q:"Which alt text best describes the finished quarterly chart?",h:"Describe it for someone who can't see it.",o:["\"A chart.\"","\"Sales.\"","\"Column chart of café sales by quarter: Q1 $119,800, Q2 $127,300, Q3 $122,600, Q4 $139,400.\"","\"Image of numbers.\""],a:2,st:"alt",why:"Good alt text names the chart type and gives the values, so the chart's message reaches everyone."}
+]};
+
+/* ===== State ===== */
+const TOTAL=S3.reduce((a,s)=>a+Q[s.key].length,0);
+let ST; const fresh=()=>({scr:"intro",s:0,i:0,done:false,log:{desk:[],choose:[],clinic:[]}}); ST=fresh();
+const app=document.getElementById("app");
+const rm=()=>matchMedia("(prefers-reduced-motion: reduce)").matches;
+const end=t=>/[.!?"]$/.test(t)?t:t+".";
+function setS(s){document.documentElement.style.setProperty("--sc",s.c);document.documentElement.style.setProperty("--sl",s.l);}
+
+function renderChrome(){
+  document.getElementById("tabs").innerHTML=S3.map((s,k)=>{const now=ST.scr==="q"&&ST.s===k;const done=ST.scr==="end"||(ST.scr==="q"&&k<ST.s);
+    return `<div class="tab ${now?"now":""} ${done?"done":""}" style="--c:${s.c}" ${now?'aria-current="step"':""}>${s.icon(now?"#2a1e17":s.c)}<span class="tt">${s.short}<small>${s.obj}</small></span></div>`;}).join("");
+  let n=0,cells="";
+  S3.forEach((s,si)=>Q[s.key].forEach((_,k)=>{const lg=ST.log[s.key][k];const cur=ST.scr==="q"&&ST.s===si&&ST.i===k;cells+=`<i class="${lg?(lg.ok?"ok":"no"):(cur?"cur":"")}"></i>`;n++;}));
+  document.getElementById("contact").innerHTML=cells;
+  const done=Object.values(ST.log).flat().filter(Boolean).length;
+  document.getElementById("sno").textContent=ST.scr==="q"?`Sheet ${String(done+(ST.done?0:1)).padStart(2,"0")} of ${TOTAL}`:(ST.scr==="end"?`Print run complete`:`Print run · ${TOTAL} sheets`);
+}
+
+function renderIntro(){
+  setS(S3[0]);
+  app.innerHTML=`<section class="in fade"><div class="intro"><div>
+    <span class="kick">Practice Activity · Module 4</span>
+    <h1>The Chart <em>Print Shop</em></h1>
+    <p class="lead">The owners are planning next year with a full year of sales, but rows of numbers don't tell them much at a glance. Run three studios to prepare the data, pick the right chart, and print charts that are clear and honest.</p>
+    <div class="studios">${S3.map(s=>`<div class="st" style="--c:${s.c}">${s.icon(s.c)}<div><b>${s.name}</b><span>${s.blurb}</span></div></div>`).join("")}</div>
+    <div class="chips"><span>About 15 minutes</span><span>${TOTAL} sheets</span><span>One try each, then keep going</span></div>
+    <button class="btn" id="go">Start the print run ${IC.arrow}</button>
+  </div>
+  <div class="poster" aria-hidden="true"><svg viewBox="0 0 320 400">
+    <rect width="320" height="400" fill="#fff2c4"/>
+    <g opacity=".22">${Array.from({length:14},(_,r)=>Array.from({length:12},(_,c)=>`<circle cx="${c*28+10}" cy="${r*30+10}" r="${2+((r+c)%3)}" fill="#c8553d"/>`).join("")).join("")}</g>
+    <text x="24" y="58" font-family="Fraunces,serif" font-weight="900" font-size="34" fill="#2a1e17">Sales,</text>
+    <text x="24" y="94" font-family="Fraunces,serif" font-weight="900" font-size="34" fill="#c8553d">at a glance.</text>
+    <g class="wob"><path d="M32 330h256" stroke="#2a1e17" stroke-width="4"/>
+    ${[[52,90,"#134f5c"],[102,140,"#c8553d"],[152,110,"#134f5c"],[202,190,"#c8553d"]].map((b,i)=>`<rect class="bar-r" style="animation-delay:${i*120}ms" x="${b[0]}" y="${330-b[1]}" width="38" height="${b[1]}" fill="${b[2]}" stroke="#2a1e17" stroke-width="3"/>`).join("")}</g>
+    <g class="wob2"><polyline class="drawl" points="40,250 110,200 160,215 230,140 285,120" fill="none" stroke="#f2b705" stroke-width="7" stroke-linecap="round"/><circle cx="285" cy="120" r="10" fill="#ffff02" stroke="#2a1e17" stroke-width="3"/></g>
+    <text x="24" y="372" font-family="Space Mono,monospace" font-weight="700" font-size="13" fill="#2a1e17">BLUEFINCH · PLANNING WALL</text>
+  </svg></div></div></section>`;
+  document.getElementById("go").addEventListener("click",()=>{ST.scr="q";ST.s=0;ST.i=0;ST.done=false;render(true);});
+}
+
+function stageHTML(it,s){const g=STAGE[it.st](s);return `<div class="cap"><span>${g.cap}</span><b>${s?"Printed":"Proof"}</b></div><div id="sg">${g.html}</div>`;}
+function renderQ(focus){
+  const s=S3[ST.s], it=Q[s.key][ST.i]; setS(s);
+  const opts = it.ct ? it.ct.map(k=>`<span class="l">${"ABCD"[it.ct.indexOf(k)]}</span>${CT[k][1]}<span>${CT[k][0]}</span>`) : it.o.map((o,k)=>`<span class="l">${"ABCD"[k]}</span><span>${esc(o)}</span>`);
+  app.innerHTML=`<section class="in fade">
+    <div class="qhead"><span class="qnum">${String(ST.i+1).padStart(2,"0")}</span><div class="qtxt"><small>${s.name} · ${s.obj} · ${ST.i+1} of ${Q[s.key].length}</small><h2 id="qq" tabindex="-1">${esc(it.q)}</h2><p>${esc(it.h)}</p></div></div>
+    <div class="stage" id="stage">${stageHTML(it,false)}</div>
+    <div class="opts ${opts.length===3?"c3":""}" role="group" aria-label="Answer choices">${opts.map((h,k)=>`<button type="button" class="opt" data-k="${k}">${h}</button>`).join("")}</div>
+    <div class="fb" id="fb" role="status"></div><div class="nav" id="nv"></div>
+  </section>`;
+  app.querySelectorAll(".opt").forEach(b=>b.addEventListener("click",()=>pick(+b.dataset.k)));
+  if(focus) document.getElementById("qq").focus({preventScroll:true});
+}
+function label(it,k){return it.ct?CT[it.ct[k]][0]+" chart":it.o[k];}
+function pick(k){
+  if(ST.done) return;
+  const s=S3[ST.s], it=Q[s.key][ST.i], ok=k===it.a;
+  ST.log[s.key][ST.i]={ok,q:it.q,you:label(it,k),ans:label(it,it.a)}; ST.done=true;
+  app.querySelectorAll(".opt").forEach((b,j)=>{b.disabled=true;b.classList.add(j===it.a?"ok":(j===k?"no":"dim"));});
+  document.getElementById("stage").innerHTML=stageHTML(it,true);
+  if(it.st==="sort"||it.st==="fifth"){ /* FLIP: rows slide from original to sorted positions */
+    if(it.st==="sort"){ requestAnimationFrame(()=>requestAnimationFrame(()=>{document.querySelectorAll("#dtb .row").forEach(r=>{r.style.top=r.dataset.to+"px";});})); }
+    else document.querySelectorAll("#dtb .row").forEach(r=>{r.style.transition="none";r.style.top=r.dataset.to+"px";});
+  }
+  const fb=document.getElementById("fb");
+  fb.className="fb show "+(ok?"ok":"no");
+  fb.innerHTML=`${ok?IC.ok:IC.no}<div><b>${ok?"Correct! Sent to print.":"Not quite. Recorded as incorrect."}</b>${ok?"":`<p>The answer is: ${esc(end(label(it,it.a)))}</p>`}<p>${esc(it.why)}</p></div>`;
+  const lastQ=ST.i===Q[s.key].length-1,lastS=ST.s===S3.length-1;
+  document.getElementById("nv").innerHTML=`<button class="btn" id="nx">${!lastQ?"Next sheet":(lastS?"See the finished print run":`Open ${S3[ST.s+1].short}`)} ${IC.arrow}</button>`;
+  const nx=document.getElementById("nx");nx.addEventListener("click",next);
+  renderChrome();
+  setTimeout(()=>nx.focus({preventScroll:true}),50);
+  nx.scrollIntoView({behavior:rm()?"auto":"smooth",block:"nearest",inline:"nearest"});
+}
+function next(){ST.done=false;if(ST.i<Q[S3[ST.s].key].length-1)ST.i++;else if(ST.s<S3.length-1){ST.s++;ST.i=0;}else ST.scr="end";render(true);}
+
+function renderEnd(){
+  setS(S3[1]);
+  const all=S3.flatMap(s=>ST.log[s.key]);const right=all.filter(x=>x.ok).length;const pct=Math.round(right/TOTAL*100);
+  const miss=S3.flatMap((s,si)=>ST.log[s.key].map((x,k)=>({s,si,x,k}))).filter(o=>!o.x.ok);
+  const data=S3.map(s=>{const l=ST.log[s.key];return [s.short,Math.round(l.filter(x=>x.ok).length/l.length*100)];});
+  const best=data.slice().sort((a,b)=>b[1]-a[1])[0];
+  const title=`Your strongest studio: ${best[0]} (${best[1]}%)`;
+  const msg=pct>=90?"Print-ready. You're set for the Bluefinch Sales Chart Brief.":pct>=70?"A strong run. Look over the sheets below before your assignment.":"A good first run. Review the sheets below, then revisit the sections they come from.";
+  app.innerHTML=`<section class="in fade res">
+    <div class="top"><div class="stampbig" role="img" aria-label="${right} of ${TOTAL} correct"><div><b id="pc">0%</b><span>${right} / ${TOTAL}</span></div></div>
+    <div><span class="kick">Print run complete</span><h2 style="font-size:clamp(26px,4vw,40px);margin:10px 0 8px" id="eh" tabindex="-1">Your Chart Brief</h2><p class="lead" style="margin:0">${msg}</p></div></div>
+    <div class="stage" style="margin-top:20px"><div class="cap"><span>Your results, charted the honest way</span><b>Zero baseline · labeled</b></div>
+      ${colChart(data,{title,min:0,max:100,labels:true,fmt:v=>Math.round(v)+"%",ytitle:"Correct answers (%)",xtitle:"Studio",colors:S3.map(s=>s.c),alt:"Column chart of correct answers by studio: "+data.map(d=>d[0]+" "+d[1]+" percent").join(", ")})}</div>
+    ${miss.length?`<div class="miss"><h3>Sheets to reprint</h3>${miss.map(o=>`<div class="mi"><span class="t" style="background:${o.s.c}">${o.si+1}.${o.k+1}</span><div><b>${esc(o.x.q)}</b><span>You chose: ${esc(end(o.x.you))} Answer: ${esc(end(o.x.ans))}</span></div></div>`).join("")}</div>`:`<div class="miss"><h3>Every sheet printed perfectly</h3><p style="margin:0">You answered all ${TOTAL} questions correctly.</p></div>`}
+    <div class="nav"><button class="btn paper" id="again">${IC.again} Run the print shop again</button></div>
+  </section>`;
+  const pc=document.getElementById("pc"),t0=performance.now();
+  (function f(t){const p=Math.min(1,(t-t0)/1300);pc.textContent=Math.round(pct*(1-Math.pow(1-p,3)))+"%";if(p<1)requestAnimationFrame(f);})(t0);
+  document.getElementById("again").addEventListener("click",()=>{ST=fresh();render(true);});
+  document.getElementById("eh").focus({preventScroll:true});
+  if(pct>=70&&!rm()){const box=document.getElementById("conf");const cols=[C.terra,C.teal,C.mustard,C.sage,C.sun,C.peach];
+    for(let k=0;k<60;k++){const d=document.createElement("i");d.style.left=Math.random()*100+"vw";d.style.background=cols[k%cols.length];d.style.animationDuration=(2+Math.random()*2)+"s";d.style.animationDelay=Math.random()*.5+"s";d.style.borderRadius=k%2?"50%":"0";box.appendChild(d);}
+    setTimeout(()=>{box.innerHTML="";},5000);}
+}
+function render(focus){renderChrome();if(ST.scr==="intro")renderIntro();else if(ST.scr==="q")renderQ(focus);else renderEnd();if(focus)window.scrollTo({top:0});}
+render(false);
+})();
+</script>
+</body>
+</html>
